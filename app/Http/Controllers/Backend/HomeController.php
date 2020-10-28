@@ -9,6 +9,10 @@ use App\Models\Category;
 use App\Models\CityArea;
 use App\Models\Config;
 use App\Models\City;
+use App\Models\Field;
+use App\Models\FieldOption;
+use App\Models\CategoryField;
+use DB;
 use Image;
 use auth;
 
@@ -179,15 +183,13 @@ class HomeController extends Controller
 
         $input = $request->all();
         $rules = [
-           'english_title' => 'required',
-           'bangla_title'  => 'required',
-           'image'         => 'mimes:jpeg,jpg,png|max:10000'
+           'title' => 'required',
+           'image'    => 'mimes:jpeg,jpg,png|max:10000'
         ];
         $request->validate($rules);
 
         $category = new Category;
-        $category->title         = $input['english_title'];
-        $category->title_bn      = $input['bangla_title'];
+        $category->title         = $input['title'];
 
         $fileName = null;
         if ($request->hasFile('image')) {
@@ -222,15 +224,13 @@ class HomeController extends Controller
        $categoryId = $id;
        $input = $request->all();
        $rules = [
-           'english_title' => 'required',
-           'bangla_title'  => 'required',
+           'title' => 'required',
            'image'         => 'mimes:jpeg,jpg,png|max:10000'
         ];
         $request->validate($rules);
 
         $category = Category::find($categoryId);
-        $category->title         = $input['english_title'];
-        $category->title_bn      = $input['bangla_title'];
+        $category->title         = $input['title'];
 
         $fileName = null;
         if ($request->hasFile('image')) {
@@ -321,6 +321,73 @@ class HomeController extends Controller
             return ['status'=>'success','message'=>__('Successfully deleted sub category')];
           else
             return ['status'=>'failed','message'=>__('Failed to delete sub category')];
+     }
+
+     public function createField(Request $request){
+       $input = $request->all();
+       $rules = [
+           'category_id'  => 'required',
+           'title'        => 'required',
+        ];
+          // Validate 
+         $validator = \Validator::make($request->all(), $rules);
+         if($validator->fails()){
+            return array('status' => 'error' , 'msg' => 'failed to add field', '' , 'errors' => $validator->errors());
+         }
+         
+         DB::beginTransaction();
+         
+         try {
+         $fieldId = DB::table('fields')->insertGetId([
+                     'category_id' => $input['category_id'],
+                     'title' => $input['title'],
+                     'type'  => $input['type'] ?? 'text',
+                     'default' => $input['default'] ?? NULL
+                    ]);
+                    DB::commit();
+            return ['status'=>'success','message'=> 'Successfully added field'];
+         } catch (\Exception $e) {
+            DB::rollback();
+           return ['status'=>'failed','message'=> 'Failed to add field'];
+         }
+     }
+
+     public function updateField(Request $request){
+       $input = $request->all();
+       $rules = [
+           'id'           => 'required',
+           'category_id'  => 'required',
+           'title'        => 'required'
+        ];
+          // Validate 
+         $validator = \Validator::make($request->all(), $rules);
+         if($validator->fails()){
+            return array('status' => 'error' , 'msg' => 'failed to update field', '' , 'errors' => $validator->errors());
+         }
+         
+         DB::beginTransaction();
+         
+         try {
+             DB::table('fields')->where('id',$input['id'])->update([
+                     'category_id' => $input['category_id'],
+                     'title' => $input['title'],
+                     'type'  => $input['type'] ?? 'text',
+                     'default' => $input['default'] ?? NULL
+                    ]);
+             DB::commit();
+            return ['status'=>'success','message'=> 'Successfully updated field'];
+         } catch (\Exception $e) {
+            DB::rollback();
+           return ['status'=>'failed','message'=> 'Failed to update field'];
+         }
+     }
+
+     public function deleteField($id){
+        if(DB::table('fields')->where('id',$id)->update(['deleted_at'=>date('Y-m-d H:i:s')])){
+            return ['status'=>'success','message'=>'Successfully deleted field'];
+        }else{
+            return ['status'=>'failed','message'=>'Failed to delete field'];
+        }
      }
 
      public function addSubcategoryAjax($id){

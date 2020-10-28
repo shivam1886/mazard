@@ -15,6 +15,7 @@ use Response;
 use DB;
 use App\Mail\NotifyMail;
 use Mail;
+use App\Models\Ad;
 
 class AuthController extends Controller
 {
@@ -250,7 +251,35 @@ class AuthController extends Controller
        $categories = Category::whereNull('parent_id')->whereNull('deleted_at')->get();
        return ['status'=>true,'message'=>__('Recoud found'),'data'=>$categories];
      }
+     
+     public function form(Request $request){
+         $input    = $request->all();
 
+         $rules = [
+                   'category_id'  => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+         if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+         }
+         
+        $data['fields'] = DB::table('fields')->where('category_id',$input['category_id'])->whereNull('deleted_at')->get();
+      
+        return view('api.form',compact('data'));        
+
+     }
+
+     public function submitForm(Request $request){
+       $inputs = $request->all();
+       $insertData = array();
+       foreach ($inputs as $key => $value) {
+          array_push($insertData,['ad_id'=>'7','field_id'=>$key,'value'=>$value]);
+       }
+       DB::table('ad_fields')->insert($insertData);
+     }
 
 
 }

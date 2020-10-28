@@ -15,36 +15,25 @@
 										</p>
 									</div>
 								</div>
-								<div class="col-md-6 col-sm-6 col-xs-12">
-								</div>
 							</div>
 						</div><!--END header-->
-
-						<!--supplier-details-->
+                        <div class="row">
+                        	<div class="col-md-4">
+                        	  						<!--supplier-details-->
 						<div class="supplier-profile-details Myuser-details">
 							<form action="{{route('admin.store.category')}}" method="post" enctype="multipart/form-data">
 								@csrf
 								<div class="row">
 									<!--supplier profile-->
-									<div class="col-md-7 col-sm-7 col-xs-12">
+									<div class="col-md-12 col-sm-12 col-xs-12">
 										<div class="profile-details">
 											<div class="row">
-												<div class="col-md-6">
+												<div class="col-md-12">
 													<div class="input-details">
 														<div class="form-group">
-														   <input class="form-control" type="text" placeholder="{{__('title in english')}}" name="english_title" value="{{old('title_en')}}" >
-															@if ($errors->has('english_title'))
-															   <span class="text-error">{{ $errors->first('english_title') }}</span>
-															@endif
-														</div>
-													</div>
-												</div>
-												<div class="col-md-6">
-													<div class="input-details">
-														<div class="form-group">
-															<input class="form-control" type="text" placeholder="{{__('title in bangla')}}" name="bangla_title" value="{{old('title_bn')}}" >
-															@if ($errors->has('bangla_title'))
-															   <span class="text-error">{{ $errors->first('bangla_title') }}</span>
+														   <input class="form-control" type="text" placeholder="{{__('title')}}" name="title" value="{{old('title')}}" >
+															@if ($errors->has('title'))
+															   <span class="text-error">{{ $errors->first('title') }}</span>
 															@endif
 														</div>
 													</div>
@@ -67,7 +56,12 @@
 									</div><!--END supplier profile-->
 								</div>
 							</form>
-						</div><!--END supplier-details-->
+						</div><!--END supplier-details-->	
+                        	</div>
+                        	<div class="col-md-8">
+                        		
+                        	</div>
+                        </div>
 					</div>
 				</div>
 @endsection

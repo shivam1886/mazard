@@ -15,37 +15,31 @@
 										</p>
 									</div>
 								</div>
-								<div class="col-md-6 col-sm-6 col-xs-12">
-								</div>
 							</div>
 						</div><!--END header-->
+
+						<div class="row">
+								<div class="col-md-12">
+                        		<div class="text-right"><button class="btn btn-theme btn-add-field">Add Field</button></div>
+                        	</div>
+						</div>
 
 						<!--supplier-details-->
 						<div class="supplier-profile-details Myuser-details">
 								<div class="row">
 									<!--supplier profile-->
-									<div class="col-md-7 col-sm-7 col-xs-12">
+									<div class="col-md-4 col-sm-4 col-xs-12">
 										<form action="{{route('admin.category.update',$data['category']->id)}}" method="post" enctype="multipart/form-data">
 										@csrf
 										{{ method_field('PUT')}}
 											<div class="profile-details">
 												<div class="row">
-													<div class="col-md-6">
+													<div class="col-md-12">
 														<div class="input-details">
 															<div class="form-group">
-															   <input class="form-control" type="text" placeholder="{{__('title in english')}}" name="english_title" value="{{old('title_en') ?? $data['category']->title}}" >
-																@if ($errors->has('english_title'))
-																   <span class="text-error">{{ $errors->first('english_title') }}</span>
-																@endif
-															</div>
-														</div>
-													</div>
-													<div class="col-md-6">
-														<div class="input-details">
-															<div class="form-group">
-																<input class="form-control" type="text" placeholder="{{__('title in bangla')}}" name="bangla_title" value="{{old('title_bn') ?? $data['category']->title_bn}}" >
-																@if ($errors->has('bangla_title'))
-																   <span class="text-error">{{ $errors->first('bangla_title') }}</span>
+															   <input class="form-control" type="text" placeholder="{{__('title in english')}}" name="title" value="{{old('title') ?? $data['category']->title}}" >
+																@if ($errors->has('title'))
+																   <span class="text-error">{{ $errors->first('title') }}</span>
 																@endif
 															</div>
 														</div>
@@ -68,70 +62,132 @@
 										 </form>
 									</div><!--END supplier profile-->
 											<!--supplier profile-->
-									<div class="col-md-5 col-sm-5 col-xs-12">
-										<div class="sub-category-list">
-												@forelse($data['category']->subCategories as $key => $subcategory)
-													<div class="profile-details">
-														<label class="btn-dlt-wrapper">
-		    												<i class="fa fa-trash btn-dlt" data-parent-category-id="{{$data['category']->id}}" data-url="{{ route('admin.subcategory.remove',$subcategory->id)}}"></i>
-														</label>
-													<form action="{{route('admin.subcategory.update')}}" method="POST" class="update-subcategory-form">
-														@csrf
-														<input type="hidden" name="category_id" value="{{$subcategory->id}}">
-														<input type="hidden" name="parent_category_id" value="{{$data['category']->id}}">
-														<div class="row">
-															<div class="col-md-6">
-																<div class="input-details">
-																	<div class="form-group">
-																	   <input class="form-control" type="text" placeholder="{{__('title in english')}}" name="english_title" value="{{$subcategory->title}}" readonly>
-																	</div>
-																</div>
-															</div>
-															<div class="col-md-6">
-																<div class="input-details">
-																	<div class="form-group">
-																		<input class="form-control" type="text" placeholder="{{__('title in bangla')}}" name="bangla_title" value="{{$subcategory->title_bn}}" readonly>
-																	</div>
-																</div>
-															</div>
-														</div>
-														<div class="btn-wrapper">
-															<button class="btn-theme btn-edit">{{__('Edit')}}</button>
-           												    <button style="display: none;" class="btn-theme btn-reset">{{__('Reset')}}</button>
-															<input style="display: none;"type="submit" class="btn-theme btn-update" value="{{__('Update')}}">
-														</div>
-													</form>
-												</div>
-												@empty
-												@endforelse
-										</div>
-										<div class="profile-details">
-											<form action="{{route('admin.subcategory.add')}}" method="POST" class="add-subcategory-form">
-												@csrf
-												<input type="hidden" name="parent_category_id" value="{{$data['category']->id}}">
-												<div class="row">
-													<div class="col-md-6">
-														<div class="input-details">
-															<div class="form-group">
-															   <input class="form-control" type="text" placeholder="{{__('title in english')}}" name="english_title" value="" >
-															</div>
-														</div>
-													</div>
-													<div class="col-md-6">
-														<div class="input-details">
-															<div class="form-group">
-																<input class="form-control" type="text" placeholder="{{__('title in bangla')}}" name="bangla_title" value="" >
-															</div>
-														</div>
-													</div>
-												</div>
-												<button class="btn-theme">{{__('Add')}}</button>
-											</form>
-										</div>
+									<div class="col-md-8 col-sm-8 col-xs-12">
+										<table class="table">
+											<thead>
+												<thead>
+													<tr>
+														<th>Title</th>
+														<th>Type</th>
+														<th>Defaul</th>
+														<th>Required</th>
+														<th>Edit/Delete</th>
+													</tr>
+												</thead>
+												<tbody>
+													@forelse($data['category']->fields as $key => $field)
+														<tr>
+															<td>{{$field->title}}</td>
+															<td>{{$field->type}}</td>
+															<td>{{$field->default ?? '-'}}</td>
+															<td>{{$field->is_required ? 'Yes' : 'No'}}</td>
+															<td><i data-id="{{$field->id}}" class="fa fa-edit btn-edit"></i>&nbsp;<i data-id="{{$field->id}}" class="fa fa-trash btn-dlt"></i></td>
+														</tr>
+													@empty
+													@endforelse
+												</tbody>
+											</thead>
+											
+										</table>
 									</div><!--END supplier profile-->
 								</div>
-							</form>
 						</div><!--END supplier-details-->
+
+						<!-- Modal -->
+						<div class="modal fade" id="add-field-modal" role="dialog" aria-labelledby="add-field-modal" aria-hidden="true">
+						  <div class="modal-dialog" role="document">
+						    <div class="modal-content">
+						      <div class="modal-header">
+						        <h5 class="modal-title" id="exampleModalLongTitle">Add field</h5>
+						        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						          <span aria-hidden="true">&times;</span>
+						        </button>
+						      </div>
+						        <form action="{{route('admin.create.field')}}" method="post" id="create-field-form">
+								      <div class="modal-body"> 
+								        	@csrf
+								        	<input type="hidden" name="category_id" value="{{$data['category']->id}}">
+								           <div class="form-group">
+								           	 <label>Title<span>*</span></label>
+								             <input type="text" name="title" class="form-control">
+								           </div>
+								           <div class="form-group">
+								           	 <label>Type<span>*</span></label>
+		                                     <select class="form-control" name="type">
+		                                     	<option value="text">Text</option>
+		                                     	<option value="email">Email</option>
+		                                     	<option value="phone">Phone</option>
+		                                     	<option value="number">Number</option>
+		                                     	<option value="textarea">Textarea</option>
+		                                     	<option value="radio">Radio</option>
+		                                     	<option value="checkbox">CheckBox</option>
+		                                     	<option value="password">Password</option>
+		                                     	<option value="file">File</option>
+		                                     </select>
+								           </div>
+								           <div class="form-group">
+								           	 <label>Default Value</label>
+								             <input type="text" name="default" value="" class="form-control">
+								           </div>
+								      </div>
+								      <div class="modal-footer">
+								        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+								        <button type="submit" class="btn btn-theme">Save</button>
+								      </div>
+						        </form>
+						    </div>
+						  </div>
+						</div>
+
+						<!-- Modal -->
+						<div class="modal fade" id="edit-field-modal" role="dialog" aria-labelledby="add-field-modal" aria-hidden="true">
+						  <div class="modal-dialog" role="document">
+						    <div class="modal-content">
+						      <div class="modal-header">
+						        <h5 class="modal-title" id="exampleModalLongTitle">Edit field</h5>
+						        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						          <span aria-hidden="true">&times;</span>
+						        </button>
+						      </div>
+						        <form action="{{route('admin.update.field')}}" method="post" id="edit-field-form">
+						        	@csrf
+						        	{{ method_field('PUT') }}
+						        	<input type="hidden" name="id" value="">
+								      <div class="modal-body"> 
+								        	@csrf
+								        	<input type="hidden" name="category_id" value="{{$data['category']->id}}">
+								           <div class="form-group">
+								           	 <label>Title<span>*</span></label>
+								             <input type="text" name="title" class="form-control">
+								           </div>
+								           <div class="form-group">
+								           	 <label>Type<span>*</span></label>
+		                                     <select class="form-control" name="type">
+		                                     	<option value="text">Text</option>
+		                                     	<option value="email">Email</option>
+		                                     	<option value="phone">Phone</option>
+		                                     	<option value="number">Number</option>
+		                                     	<option value="textarea">Textarea</option>
+		                                     	<option value="radio">Radio</option>
+		                                     	<option value="checkbox">CheckBox</option>
+		                                     	<option value="password">Password</option>
+		                                     	<option value="file">File</option>
+		                                     </select>
+								           </div>
+								           <div class="form-group">
+								           	 <label>Default Value</label>
+								             <input type="text" name="default" value="" class="form-control">
+								           </div>
+								      </div>
+								      <div class="modal-footer">
+								        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+								        <button type="submit" class="btn btn-theme">Update</button>
+								      </div>
+						        </form>
+						    </div>
+						  </div>
+						</div>
+
 					</div>
 				</div>
 @endsection
@@ -142,27 +198,31 @@
 @push('js')
  <script type="text/javascript">
 
- 	   //Image Preview
-      $('input[type="file"]').on('change',function(event){
-      // event.preventDefault();
-       tmppath = URL.createObjectURL(event.target.files[0]);
-       $('.custom-upload-img img').attr('src',tmppath);
-      });
-
-     // Get Subcategory
- 	  let getSubCategories = function (){
+ 	// Get Fields
+ 	  let getFields = function (){
 					$.ajax(
 					{
 						"headers":{
 						'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
 					},
 						'type':'get',
-						'url' : "{{route('admin.subcategory.list',$data['category']->id)}}",
+						'url' : "{{route('ajax.fields',$data['category']->id)}}",
 					beforeSend: function() {
 
 					},
 					'success' : function(response){
-              	        $('.sub-category-list').html(response);
+						console.log(response);
+						let html = '';
+						response.data.map(function(field,key){
+							html += '<tr>';
+							html += `<td>${field.title}</td>`;
+							html += `<td>${field.type}</td>`;
+							html += `<td>${field.default != null && field.default != '' ? field.default : ''}</td>`;
+							html += `<td>${field.is_required == '1' ? 'yes' : 'no'}</td>`;
+							html += `<td><i data-id="${field.id}" class="fa fa-edit btn-edit"></i>&nbsp;<i data-id="${field.id}" class="fa fa-trash btn-dlt"></i></td>`;
+							html += '<tr>';
+						});
+              	        $('table tbody').html(html);
 					},
   					'error' : function(error){
 					},
@@ -175,114 +235,22 @@
       $('input[type="file"]').on('change',function(event){
       // event.preventDefault();
        tmppath = URL.createObjectURL(event.target.files[0]);
-      });
-      $('select[name="category"]').on('change',function(e){
-      	  if(e.target.value != ''){ $('input[type="file"]').parents('.input-details').hide(); }else{ $('input[type="file"]').parents('.input-details').show();;}
-      	   
+       $('.custom-upload-img img').attr('src',tmppath);
       });
 
-       $('body').on('submit','.add-subcategory-form',function(e){
-	  	e.preventDefault();
-	    var click = $(this);
-		let form  = $(this);
-	    let data = form.serialize();
-		$.ajax({
-			"headers":{
-			'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-		},
-			'type':'POST',
-			'url' : form.attr('action'),
-			'data' : data,
-		beforeSend: function() {
 
-		},
-		'success' : function(response){
-				click.find('.text-error').remove();
-			if(response.status == 'success'){
-			      swal("Success!",response.message, "success");
-  				  click.find('input[type="text"]').val('');
-			      getSubCategories();
-			}
-			if(response.status == 'failed'){
-			     swal("Failed!",response.message, "error");
-			}
-			if(response.status == 'error'){
-				$.each(response.errors, function (key, val) {
-				click.find('[name='+key+']').after('<span class="text-error">'+val+'</span>');
-				});
-			}
-		},
-		'error' : function(error){
-			console.log(error);
-		},
-		complete: function() {
-
-		},
-		});
-	  });
-
-       $('body').on('submit','.update-subcategory-form',function(e){
-	  	e.preventDefault();
-	    var click = $(this);
-		let form  = $(this);
-	    let data = form.serialize();
-		$.ajax({
-			"headers":{
-			'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-		},
-			'type':'PUT',
-			'url' : form.attr('action'),
-			'data' : data,
-		beforeSend: function() {
-
-		},
-		'success' : function(response){
-				click.find('span').remove();
-				click.find('input[type="text"]').val('');
-			if(response.status == 'success'){
-			      swal("Success!",response.message, "success");
-			      getSubCategories();
-			}
-			if(response.status == 'failed'){
-			     swal("Failed!",response.message, "error");
-			}
-			if(response.status == 'error'){
-				$.each(response.errors, function (key, val) {
-				click.find('[name='+key+']').after('<span class="text-error">'+val+'</span>');
-				});
-			}
-		},
-		'error' : function(error){
-			console.log(error);
-		},
-		complete: function() {
-
-		},
-		});
-	  });
-
-       $('body').on('click','.btn-reset',function(e){
-         	 e.preventDefault();
-         	 let form = $(this).parents('.update-subcategory-form');             
-                 form[0].reset();
-       });
-
-       $('body').on('click','.btn-edit',function(e){
-       	  e.preventDefault();
-       	  $(this).hide();
-       	  let form = $(this).parents('.update-subcategory-form');
-       	      form.find('input[type="text"]').removeAttr('readonly');
-       	      form.find('.btn-update').show();
-       	      form.find('.btn-reset').show();
-       });
+ 	   //Image Preview
+      $('input[type="file"]').on('change',function(event){
+      // event.preventDefault();
+       tmppath = URL.createObjectURL(event.target.files[0]);
+      });
 
          $('body').on('click','.btn-dlt',function(e){
-		  	  var url = $(this).attr('data-url');
-	          var parentCategoryId = $(this).attr('data-parent-category-id');
-	          var data = { parent_category_id : parentCategoryId };
+		  	  let id  = $(this).attr('data-id');
+	          let url = "{{route('admin.delete.field')}}" + '/' + id;
 			  swal({
 			  title: "{{__('Are you sure?')}}",
-			  text: "{{__('Once deleted, you will not be able to recover this sub category!')}}",
+			  text: "{{__('Once deleted, you will not be able to recover this field!')}}",
 			  icon: "warning",
 			  buttons: true,
 			  dangerMode: true,
@@ -297,13 +265,12 @@
 					},
 						'type':'DELETE',
 						'url' : url,
-						'data' : data,
 					beforeSend: function() {
 					},
 					'success' : function(response){
 						if(response.status == 'success'){
 							swal("Success!",response.message, "success");
-   					        getSubCategories();
+   					        getFields();
 						}
 						if(response.status == 'failed'){
 							swal("Failed!",response.message, "error");
@@ -317,6 +284,121 @@
 			 });
 	     });
 
+	     $('.btn-add-field').on('click',function(e){
+	     	$('#create-field-form input[type="text"],#create-field-form select').val('');
+	     	$('#add-field-modal').modal('show');
+	     });
+         
+         $('#create-field-form').on('submit',function(e){
+         	e.preventDefault();
+			let form  = $(this);
+		    let data = form.serialize();
+			$.ajax({
+				"headers":{
+				'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+			},
+				'type':'POST',
+				'url' : form.attr('action'),
+				'data' : data,
+			beforeSend: function() {
+
+			},
+			'success' : function(response){
+				form.find('.text-error').remove();
+				if(response.status == 'success'){
+				      swal("Success!",response.message, "success");
+	  				  form.find('input[type="text"],select').val('');
+	  				  $('#add-field-modal').modal('hide');
+                      getFields();
+	  			}
+				if(response.status == 'failed'){
+				     swal("Failed!",response.message, "error");
+				}
+				if(response.status == 'error'){
+					$.each(response.errors, function (key, val) {
+					form.find('[name='+key+']').after('<span class="text-error">'+val+'</span>');
+					});
+				}
+			},
+			'error' : function(error){
+				console.log(error);
+			},
+			complete: function() {
+
+			},
+			});
+
+         });
+
+			$('body').on('click','.btn-edit',function(e){
+				e.preventDefault();
+				let id = $(this).attr('data-id');
+				$.ajax(
+					{
+						"headers":{
+						'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+					},
+						'type':'get',
+						'url' : "{{route('admin.ajax.field')}}" +'/'+ id,
+					beforeSend: function() {
+
+					},
+					'success' : function(response){
+					    if(response.status=='success'){
+					    	$('input[name="id"]').val(response.data.id);
+					    	$('input[name="title"]').val(response.data.title);
+					    	$('select[name="type"]').val(response.data.type);
+					    	$('input[name="default"]').val(response.data.default);
+					    }
+					},
+  					'error' : function(error){
+					},
+					complete: function() {
+					},
+					});
+				$('#edit-field-modal').modal('show');
+			});
+
+			$('#edit-field-form').on('submit',function(e){
+         	e.preventDefault();
+			let form  = $(this);
+		    let data = form.serialize();
+			$.ajax({
+				"headers":{
+				'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+			},
+				'type':'PUT',
+				'url' : form.attr('action'),
+				'data' : data,
+			beforeSend: function() {
+
+			},
+			'success' : function(response){
+				form.find('.text-error').remove();
+				if(response.status == 'success'){
+				      swal("Success!",response.message, "success");
+	  				  form.find('input[type="text"],select').val('');
+	  				  $('#edit-field-modal').modal('hide');
+                      getFields();
+	  			}
+				if(response.status == 'failed'){
+				     swal("Failed!",response.message, "error");
+				}
+				if(response.status == 'error'){
+					$.each(response.errors, function (key, val) {
+					form.find('[name='+key+']').after('<span class="text-error">'+val+'</span>');
+					});
+				}
+			},
+			'error' : function(error){
+				console.log(error);
+			},
+			complete: function() {
+
+			},
+			});
+
+         });
  </script>
 @endpush
 

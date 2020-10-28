@@ -33,6 +33,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/forgot/password','Api\AuthController@forgatePassword');
 
     Route::get('/get/categories','Api\AuthController@getCategories');
+    Route::get('/get/form','Api\AuthController@form');
+    Route::post('/submit/form','Api\AuthController@submitForm');
 
 
       

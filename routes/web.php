@@ -73,6 +73,15 @@ Route::post('admin/city/localarea/add','Backend\HomeController@adCityLocalarea')
 Route::put('admin/city/localarea/update/{id}','Backend\HomeController@updateCityLocalarea')->name('admin.city.localarea.update');
 Route::delete('admin/city/localarea/remove/{id}','Backend\HomeController@removeCityLocalarea')->name('admin.city.localarea.remove');
 
+Route::post('admin/create/field','Backend\HomeController@createField')->name('admin.create.field');
+Route::put('admin/update/field','Backend\HomeController@updateField')->name('admin.update.field');
+Route::delete('admin/delete/field/{id?}','Backend\HomeController@deleteField')->name('admin.delete.field');
+
+/**
+* Backend ajax Route's
+**/
+Route::get('admin/get/field/{id?}', 'AjaxController@field')->name('admin.ajax.field');
+
 /************************* End Admin Route's **********************************/
 
 Auth::routes();
@@ -82,6 +91,7 @@ Auth::routes();
 **/
 Route::get('ajax/sub/category/{id}', 'AjaxController@subCategory')->name('ajax.sub.category');
 Route::get('ajax/city/area/{id}', 'AjaxController@cityArea')->name('ajax.city.area');
+Route::get('ajax/fields/{id}', 'AjaxController@fields')->name('ajax.fields');
 
 
 /**

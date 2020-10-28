@@ -17,6 +17,10 @@ class Category extends Model
        return $this->hasMany('App\Models\Category','parent_id','id');
      }
 
+     public function fields(){
+       return $this->hasMany('App\Models\Field','category_id','id');
+     }
+
      public function getImageAttribute($image){
        if($image)
        	    return asset('images/category/'.$image);

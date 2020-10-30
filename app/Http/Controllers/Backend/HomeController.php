@@ -329,6 +329,7 @@ class HomeController extends Controller
            'category_id'  => 'required',
            'title'        => 'required',
         ];
+
           // Validate 
          $validator = \Validator::make($request->all(), $rules);
          if($validator->fails()){
@@ -339,16 +340,19 @@ class HomeController extends Controller
          
          try {
          $fieldId = DB::table('fields')->insertGetId([
-                     'category_id' => $input['category_id'],
-                     'title' => $input['title'],
-                     'type'  => $input['type'] ?? 'text',
-                     'default' => $input['default'] ?? NULL
+                     'category_id'   => $input['category_id'],
+                     'title'         => $input['title'],
+                     'type'          => $input['type'] ?? 'text',
+                     'default'       => $input['default'] ?? NULL,
+                     'help'          => $input['default'] ?? NULL,
+                     'is_required'   => $input['is_required'] ?? '0',
+                     'field_options' => isset($input['option']) ? serialize($input['option']) : serialize(array())
                     ]);
                     DB::commit();
             return ['status'=>'success','message'=> 'Successfully added field'];
          } catch (\Exception $e) {
             DB::rollback();
-           return ['status'=>'failed','message'=> 'Failed to add field'];
+           return ['status'=>'failed','message'=> $e->getMessage()];
          }
      }
 
@@ -369,10 +373,13 @@ class HomeController extends Controller
          
          try {
              DB::table('fields')->where('id',$input['id'])->update([
-                     'category_id' => $input['category_id'],
-                     'title' => $input['title'],
-                     'type'  => $input['type'] ?? 'text',
-                     'default' => $input['default'] ?? NULL
+                    'category_id'   => $input['category_id'],
+                     'title'         => $input['title'],
+                     'type'          => $input['type'] ?? 'text',
+                     'default'       => $input['default'] ?? NULL,
+                     'help'          => $input['default'] ?? NULL,
+                     'is_required'   => $input['is_required'] ?? '0',
+                     'field_options' => isset($input['option']) ? serialize($input['option']) : serialize(array())
                     ]);
              DB::commit();
             return ['status'=>'success','message'=> 'Successfully updated field'];

@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.3
+-- version 4.6.6deb5
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Oct 28, 2020 at 12:38 PM
--- Server version: 10.4.14-MariaDB
--- PHP Version: 7.4.11
+-- Host: localhost
+-- Generation Time: Oct 30, 2020 at 06:51 PM
+-- Server version: 5.7.32-0ubuntu0.18.04.1
+-- PHP Version: 7.3.23-4+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -39,7 +38,7 @@ CREATE TABLE `ads` (
   `city_area_id` int(11) UNSIGNED NOT NULL,
   `is_active` enum('0','1') NOT NULL DEFAULT '1',
   `is_publish` enum('0','1') NOT NULL DEFAULT '1',
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -62,7 +61,7 @@ CREATE TABLE `ad_fields` (
   `ad_id` int(11) NOT NULL,
   `field_id` int(11) NOT NULL,
   `value` text NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -90,7 +89,7 @@ CREATE TABLE `categories` (
   `title_bn` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `is_active` enum('0','1') DEFAULT '1',
   `image` varchar(250) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -136,7 +135,7 @@ CREATE TABLE `cities` (
   `title_bn` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `type` enum('city','division') NOT NULL,
   `is_active` enum('0','1') NOT NULL DEFAULT '1',
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -176,7 +175,7 @@ CREATE TABLE `city_areas` (
   `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `title_bn` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `is_active` enum('0','1') NOT NULL DEFAULT '1',
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -201,7 +200,7 @@ CREATE TABLE `config` (
   `id` int(11) UNSIGNED NOT NULL,
   `key` varchar(250) NOT NULL,
   `value` text NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -224,9 +223,11 @@ CREATE TABLE `fields` (
   `category_id` int(11) UNSIGNED NOT NULL,
   `title` varchar(250) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `type` enum('text','textarea','select','radio','checkbox','number','email','phone') NOT NULL DEFAULT 'text',
-  `help` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `help` text CHARACTER SET utf8 COLLATE utf8_bin,
   `default` varchar(250) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `is_required` enum('0','1') NOT NULL DEFAULT '0',
+  `field_options` text CHARACTER SET utf8 COLLATE utf8_bin,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -235,25 +236,8 @@ CREATE TABLE `fields` (
 -- Dumping data for table `fields`
 --
 
-INSERT INTO `fields` (`id`, `category_id`, `title`, `type`, `help`, `default`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(18, 33, 'Name', 'text', NULL, NULL, '2020-10-28 06:05:06', NULL, NULL),
-(19, 33, 'phone', 'phone', NULL, NULL, '2020-10-28 06:05:16', NULL, NULL),
-(20, 33, 'email', 'email', NULL, NULL, '2020-10-28 06:05:25', NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `field_options`
---
-
-CREATE TABLE `field_options` (
-  `field_id` int(11) UNSIGNED NOT NULL,
-  `value` text NOT NULL,
-  `id` int(11) UNSIGNED NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `update_at` datetime DEFAULT NULL,
-  `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `fields` (`id`, `category_id`, `title`, `type`, `help`, `default`, `is_required`, `field_options`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(28, 28, 'Size', 'select', 'S', 'S', '1', 's:5:\"S,M,L\";', '2020-10-30 18:01:14', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -320,7 +304,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `role_id`, `name`, `first_name`, `last_name`, `ibn_no`, `national_id`, `email`, `phone`, `address`, `is_active`, `device_token`, `profile_image`, `password`, `device_type`, `remember_token`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, '1', 'admin', NULL, NULL, NULL, NULL, 'admin@gmail.com', '9999999999', NULL, '1', NULL, 'rdogi3iMgP.1602658747.jpeg', '$2y$10$ExamjU1FsSKJ.gJBmj.7Pen0jRyg7Y4RrNxQTkkMifAeDY3emahTm', '0', 'WJCC3GwlKTX5LX3PHj33N6oLpbUq5TD2ICVuzi5QtUnXAwjdCaqOb8lnuzmQ', '2020-10-13 18:30:00', '2020-10-14 01:29:07', NULL),
+(1, '1', 'admin', NULL, NULL, NULL, NULL, 'admin@gmail.com', '9999999999', NULL, '1', NULL, 'rdogi3iMgP.1602658747.jpeg', '$2y$10$ExamjU1FsSKJ.gJBmj.7Pen0jRyg7Y4RrNxQTkkMifAeDY3emahTm', '0', '5hX4uy3ibe27NDWSfcqcGWuhdu8Mr7KFCHQ3w6VqSZrnz4rGeTU258vRN85F', '2020-10-13 18:30:00', '2020-10-14 01:29:07', NULL),
 (2, '2', 'Mohammad Naim', NULL, NULL, NULL, NULL, 'mohammad.naim@malinator.com\n', '9632587412', NULL, '1', NULL, 'rdogi3iMgP.1602658747.jpeg', '$2y$10$ExamjU1FsSKJ.gJBmj.7Pen0jRyg7Y4RrNxQTkkMifAeDY3emahTm', '0', NULL, NULL, NULL, NULL),
 (17, '2', 'Afif Hossain', NULL, NULL, NULL, NULL, 'afif.hossain@malinator.com', '9632587412', NULL, '1', NULL, 'rdogi3iMgP.1602658747.jpeg', '$2y$10$ExamjU1FsSKJ.gJBmj.7Pen0jRyg7Y4RrNxQTkkMifAeDY3emahTm', '0', NULL, NULL, NULL, NULL),
 (18, '2', 'Abu Jayed', NULL, NULL, NULL, NULL, 'abu.jayed@malinator.com', '9632587412', NULL, '1', NULL, 'rdogi3iMgP.1602658747.jpeg', '$2y$10$ExamjU1FsSKJ.gJBmj.7Pen0jRyg7Y4RrNxQTkkMifAeDY3emahTm', '0', NULL, NULL, NULL, NULL),
@@ -400,12 +384,6 @@ ALTER TABLE `fields`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `field_options`
---
-ALTER TABLE `field_options`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `migrations`
 --
 ALTER TABLE `migrations`
@@ -432,55 +410,46 @@ ALTER TABLE `users`
 --
 ALTER TABLE `ads`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
 --
 -- AUTO_INCREMENT for table `ad_fields`
 --
 ALTER TABLE `ad_fields`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
-
 --
 -- AUTO_INCREMENT for table `cities`
 --
 ALTER TABLE `cities`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
-
 --
 -- AUTO_INCREMENT for table `city_areas`
 --
 ALTER TABLE `city_areas`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
-
 --
 -- AUTO_INCREMENT for table `config`
 --
 ALTER TABLE `config`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
 --
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
-
 --
 -- Constraints for dumped tables
 --
@@ -490,7 +459,6 @@ ALTER TABLE `users`
 --
 ALTER TABLE `city_areas`
   ADD CONSTRAINT `city_areas_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

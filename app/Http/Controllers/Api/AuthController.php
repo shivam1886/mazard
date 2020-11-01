@@ -274,6 +274,7 @@ class AuthController extends Controller
 
      public function submitForm(Request $request){
        $inputs = $request->all();
+       return $inputs;
        $insertData = array();
        foreach ($inputs as $key => $value) {
           array_push($insertData,['ad_id'=>'7','field_id'=>$key,'value'=>$value]);

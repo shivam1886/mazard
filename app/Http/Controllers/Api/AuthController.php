@@ -267,6 +267,12 @@ class AuthController extends Controller
          }
          
         $data['fields'] = DB::table('fields')->where('category_id',$input['category_id'])->whereNull('deleted_at')->get();
+
+        if($data['fields']->toArray()){
+           foreach ($data['fields'] as $key => $value) {
+              $data['fields'][$key]->field_options = unserialize($value->field_options);
+           }
+        }
       
         return view('api.form',compact('data'));        
 

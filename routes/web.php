@@ -25,6 +25,7 @@ Route::post('admin/password/email', 'Backend\Auth\ForgotPasswordController@sendR
 Route::get('admin/password/reset/{token}', 'Backend\Auth\ResetPasswordController@showResetForm');
 Route::post('admin/password/reset', 'Backend\Auth\ResetPasswordController@reset')->name('admin.password.reset');
 
+Route::get('/', 'Backend\HomeController@home')->name('admin');
 Route::get('admin', 'Backend\HomeController@home')->name('admin');
 Route::get('admin/home', 'Backend\HomeController@home')->name('admin.home');
 Route::get('admin/profile', 'Backend\HomeController@profile')->name('admin.profile');
@@ -92,21 +93,6 @@ Auth::routes();
 Route::get('ajax/sub/category/{id}', 'AjaxController@subCategory')->name('ajax.sub.category');
 Route::get('ajax/city/area/{id}', 'AjaxController@cityArea')->name('ajax.city.area');
 Route::get('ajax/fields/{id}', 'AjaxController@fields')->name('ajax.fields');
-
-
-/**
-* Frontend Route's
-**/
-
-Route::get('/', 'HomeController@index')->name('home');
-Route::get('/add/ad', 'HomeController@addAd')->name('add.ad');
-Route::get('/create/ad', 'HomeController@adCreate')->name('ad.create');
-Route::post('/store/ad', 'HomeController@adStore')->name('ad.store');
-Route::get('/my/ads', 'HomeController@myAds')->name('my.ads');
-
-Route::put('/update/profile', 'HomeController@updateProfile')->name('update.profile');
-Route::put('/change/password', 'HomeController@changePassword')->name('change.password');
-
 
 
 

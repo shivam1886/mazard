@@ -56,6 +56,17 @@
 					<input type="text" name="{{strtolower($field->id)}}" placeholder="{{ucfirst($field->title)}}" value="" class="form-control" autocomplete="off">
 					</div>
 				@break;
+				@case('select')
+					<div class="form-group">
+					<select name="{{strtolower($field->id)}}" class="form-control">
+						<option value="">{{$field->title}}</option>
+						@forelse($field->field_options as $option)
+						 <option value="{{$option}}">{{$option}}</option>
+						@empty
+						@endforelse
+					</select>
+					</div>
+				@break;
 			@endswitch
 		@empty
 		@endforelse

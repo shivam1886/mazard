@@ -114,7 +114,7 @@
 								           <div class="form-group">
 								           	 <label>Type<span>*</span></label>
 		                                     <select class="form-control" name="type">
-		                                     	<option value="text">Text</option>
+		                                     	<option value="text" selected>Text</option>
 		                                     	<option value="email">Email</option>
 		                                     	<option value="phone">Phone</option>
 		                                     	<option value="number">Number</option>
@@ -122,12 +122,28 @@
 		                                     	<option value="radio">Radio</option>
 		                                     	<option value="checkbox">CheckBox</option>
 		                                     	<option value="password">Password</option>
+		                                     	<option value="select">Select</option>
 		                                     	<option value="file">File</option>
 		                                     </select>
 								           </div>
 								           <div class="form-group">
 								           	 <label>Default Value</label>
 								             <input type="text" name="default" value="" class="form-control">
+								           </div>
+								           <div class="form-group">
+								           	 <label>Help</label>
+								             <input type="text" name="help" value="" class="form-control">
+								           </div>
+								           <div class="form-group option-input">
+								           	 <label>Option</label>
+								             <div>
+								             	<input type="text" name="option" class="form-control" data-role="tagsinput">
+								             </div>
+								           </div>
+								           <div class="form-group">
+								           	<label>
+								           	  <input type="checkbox" name="is_required" value="1"> Required
+								           	</label>
 								           </div>
 								      </div>
 								      <div class="modal-footer">
@@ -171,12 +187,26 @@
 		                                     	<option value="radio">Radio</option>
 		                                     	<option value="checkbox">CheckBox</option>
 		                                     	<option value="password">Password</option>
+		                                     	<option value="select">Select</option>
 		                                     	<option value="file">File</option>
 		                                     </select>
 								           </div>
 								           <div class="form-group">
 								           	 <label>Default Value</label>
 								             <input type="text" name="default" value="" class="form-control">
+								           </div>
+								          <div class="form-group">
+								           	 <label>Help</label>
+								             <input type="text" name="help" value="" class="form-control">
+								           </div>
+								           <div class="form-group option-input">
+								           	 <label>Option</label>
+												<input type="text" name="option" data-role="tagsinput">
+								           </div>
+								           <div class="form-group">
+								           	<label>
+								           	  <input type="checkbox" name="is_required" value="1"> Required
+								           	</label>
 								           </div>
 								      </div>
 								      <div class="modal-footer">
@@ -194,9 +224,24 @@
 @push('css')
  <style type="text/css">
  </style>
+ <link rel="stylesheet" type="text/css" href="{{asset('public/backend/css/tag.input.min.css')}}">
 @endpush
 @push('js')
+ <script type="text/javascript" src="{{asset('public/backend/js/tag.input.min.js')}}"></script>
  <script type="text/javascript">
+
+ 	 $('#add-field-modal input[name="option"]').tagsInput();
+
+ 	 $('.option-input').hide();
+
+ 	 $('select[name="type"]').on('change',function(e){
+ 	 	 let value = e.target.value;
+ 	 	     if(value == 'select'){
+ 	 	     	$('.option-input').show();
+ 	 	     }else{
+ 	 	     	$('.option-input').hide();
+ 	 	     }
+ 	 });
 
  	// Get Fields
  	  let getFields = function (){
@@ -231,13 +276,10 @@
 					});
  	  }
 
- 	   //Image Preview
-      $('input[type="file"]').on('change',function(event){
-      // event.preventDefault();
-       tmppath = URL.createObjectURL(event.target.files[0]);
-       $('.custom-upload-img img').attr('src',tmppath);
-      });
-
+ 	  $('input[name="option"]').on('click',function(e){
+ 	  	 e.preventDefault();
+         $('input[name="option"]').tagsInput({width:'auto'});
+ 	  });
 
  	   //Image Preview
       $('input[type="file"]').on('change',function(event){
@@ -305,6 +347,7 @@
 			},
 			'success' : function(response){
 				form.find('.text-error').remove();
+				console.log(response);
 				if(response.status == 'success'){
 				      swal("Success!",response.message, "success");
 	  				  form.find('input[type="text"],select').val('');
@@ -345,10 +388,17 @@
 					},
 					'success' : function(response){
 					    if(response.status=='success'){
-					    	$('input[name="id"]').val(response.data.id);
-					    	$('input[name="title"]').val(response.data.title);
-					    	$('select[name="type"]').val(response.data.type);
-					    	$('input[name="default"]').val(response.data.default);
+					    	$('#edit-field-modal input[name="id"]').val(response.data.id);
+					    	$('#edit-field-modal input[name="title"]').val(response.data.title);
+					    	$('#edit-field-modal select[name="type"]').val(response.data.type);
+					    	$('#edit-field-modal input[name="default"]').val(response.data.default);
+					    	$('#edit-field-modal input[name="help"]').val(response.data.help);
+					    	$('#edit-field-modal input[name="is_required"]').prop('checked',response.data.help);
+					    	if(response.data.type == 'select'){
+					    		 $('#edit-field-modal .option-input').show();
+				    	    	 $('#edit-field-modal input[name="option"]').val(response.data.field_options);
+				    	    	 $('#edit-field-modal input[name="option"]').tagsInput('refresh');
+					    	}
 					    }
 					},
   					'error' : function(error){

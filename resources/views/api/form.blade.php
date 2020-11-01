@@ -13,64 +13,160 @@
 	<link rel="stylesheet" type="text/css" href="{{asset('public/backend')}}/css/bootstrap.min.css">
 	<!--font awesome 4-->
 	<link rel="stylesheet" type="text/css" href="{{asset('public/backend')}}/fonts/fontawesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{asset('public')}}/css/app.css">
 	<style type="text/css">
 		body{
 			background: #000;
+			margin: 0;
+			padding: 0;
+		}
+		input, textarea {
+		  color:#fff !important;
+		  padding: 12px 20px;
+		  margin: 8px 0;
+		  display: inline-block;
+		  border: 1px solid #14181e !important;
+		  box-sizing: border-box;
+		  background-color: #090e14 !important;
+		  font-size: 15px !important;
 		}
 
-		button,input[type="submit"]{
-			background: #85d7ff;
-			border-radius: none;
-			color:#fff;
-			border: none;
-			padding: 5px;
-			display: inline;
-			width: 100%;
+		select {
+		  padding: 12px 20px;
+		  margin: 8px 0;
+		  color:#fff !important;
+		  display: inline-block;
+		  border: 1px solid #14181e !important;
+		  box-sizing: border-box;
+		  background-color: #01385f !important;
+		  font-size: 15px !important;
 		}
-     	.form-control{
-     		border-radius: none !important;
-     	}
+
+		input[type=submit] {
+		  width: 100%;
+		  background-color: #01385f !important;
+		  color: white;
+		  padding: 14px 20px;
+		  margin: 8px 0;
+		  border: none;
+		  border-radius: 4px;
+		  cursor: pointer;
+		}
 	</style>
 </head>
 <body>
 
   <div class="wrapper">
-  	 <form class="form" action="{{url('api/submit/form')}}" method="post">
+  	 <form class="form" action="{{url('api/submit/form')}}" method="get">
   	 	<input type="hidden" name="user_id" value="{{Request::get('user_id')}}">
+  	 	<input type="hidden" name="category_id" value="{{Request::get('category_id')}}">
+
+			  	 	<div class="form-group">
+			  	 		<input type="title" name="title" placeholder="Title" value="{{old('title')}}" class="form-control" autocomplete="off">
+			  	 		@if($errors->has('title')) 
+						    <div class="text-error">{{ $errors->first('title') }}</div>
+						@endif
+			  	 	</div>
+			  	 	
+			  	 	<div class="form-group">
+                       <textarea name="description" placeholder="Description" class="form-control">{{old('description')}}</textarea>
+   			  	 	   @if($errors->has('description'))
+ 						   <span class="text-error">{{ $errors->first('description') }}</span>
+						@endif
+			  	 	</div>
+			  	 	
+			  	 	<div class="form-group">
+			  	 		<input type="number" name="price" placeholder="Price" value="{{old('price')}}" class="form-control" autocomplete="off">
+			  	 	  	@if($errors->has('price'))
+ 						   <span class="text-error">{{ $errors->first('price') }}</span>
+						@endif
+			  	 	</div>
 
   	 	@forelse($data['fields'] as $key => $field)
-
-			@switch($field->type)
-			    @case('text')
+			  @switch($field->type)
+		       @case('text')
 			  	 	<div class="form-group">
-			  	 		<input type="text" name="{{strtolower($field->id)}}" placeholder="{{ucfirst($field->title)}}" value="" class="form-control" autocomplete="off">
+			  	 		<input type="text" name="{{$field->input_name}}" placeholder="{{$field->title}}"  class="form-control" value="{{old($field->input_name)}}" autocomplete="off">
+			  	 		@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+						@endif
 			  	 	</div>
 		        @break
+
 		        @case('email')
 					<div class="form-group">
-					     <input type="email" name="{{strtolower($field->id)}}" placeholder="{{ucfirst($field->title)}}" value="" class="form-control" autocomplete="off">
+					     <input type="email" name="{{$field->input_name}}" placeholder="{{$field->title}}"  class="form-control" value="{{old($field->input_name)}}" autocomplete="off">
+					     @if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+						 @endif
 					</div>
 				@break
 			    @case('phone')
 					<div class="form-group">
-					<input type="text" name="{{strtolower($field->id)}}" placeholder="{{ucfirst($field->title)}}" value="" class="form-control" autocomplete="off">
+					<input type="text" name="{{$field->input_name}}" placeholder="{{$field->title}}"  class="form-control" value="{{old($field->input_name)}}" autocomplete="off">
+					@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+					@endif
+					</div>
+				@break;
+				@case('number')
+					<div class="form-group">
+					<input type="number" name="{{$field->input_name}}" placeholder="{{$field->title}}" value="{{old($field->input_name)}}"  class="form-control" autocomplete="off">
+					@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+					@endif
+					</div>
+				@break;
+				@case('cost')
+					<div class="form-group">
+					<input type="number" name="{{$field->input_name}}" placeholder="{{$field->title}}" value="{{old($field->input_name)}}" class="form-control" autocomplete="off">
+					@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name)}}</div>
+					@endif
+					</div>
+				@break;
+				@case('time')
+					<div class="form-group">
+					<input type="time" name="{{$field->input_name}}" placeholder="{{$field->title}}" value="{{old($field->input_name)}}"  class="form-control" value="{{old($field->input_name)}}" autocomplete="off">
+					@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+					@endif
+					</div>
+				@break;
+				@case('date')
+					<div class="form-group">
+					<input type="date" name="{{$field->input_name}}" placeholder="{{$field->title}}"  class="form-control" value="{{old($field->input_name)}}" autocomplete="off">
+					@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+					@endif
+					</div>
+				@break;
+				@case('year')
+					<div class="form-group">
+					<input type="year" name="{{$field->input_name}}" value="{{old($field->input_name)}}" placeholder="{{$field->title}}"  class="form-control" autocomplete="off">
+					@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+					@endif
 					</div>
 				@break;
 				@case('select')
 					<div class="form-group">
-					<select name="{{strtolower($field->id)}}" class="form-control">
-						<option value="">{{$field->title}}</option>
-						@forelse($field->field_options as $option)
-						 <option value="{{$option}}">{{$option}}</option>
+					<select name="{{$field->input_name}}" class="form-control">
+						<option >{{$field->input_name}}</option>
+						@forelse(unserialize($field->field_options) as $option)
+						 <option @if(old($field->input_name) == $option) selected @endif value="{{$option}}">{{$option}}</option>
 						@empty
 						@endforelse
 					</select>
+					@if($errors->has($field->input_name)) 
+						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
+					@endif
 					</div>
-				@break;
+				@break
 			@endswitch
 		@empty
 		@endforelse
-		<input type="submit" value="submit">
+		<input type="submit" value="Add">
   	 </form>
   </div>  
 

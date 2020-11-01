@@ -123,6 +123,10 @@
 		                                     	<option value="checkbox">CheckBox</option>
 		                                     	<option value="password">Password</option>
 		                                     	<option value="select">Select</option>
+		                                     	<option value="time">Time</option>
+		                                     	<option value="cost">Cost</option>
+		                                     	<option value="date">Date</option>
+		                                     	<option value="year">Year</option>
 		                                     	<option value="file">File</option>
 		                                     </select>
 								           </div>
@@ -188,6 +192,10 @@
 		                                     	<option value="checkbox">CheckBox</option>
 		                                     	<option value="password">Password</option>
 		                                     	<option value="select">Select</option>
+		                                     	<option value="time">Time</option>
+		                                     	<option value="cost">Cost</option>
+		                                     	<option value="date">Date</option>
+		                                     	<option value="year">Year</option>
 		                                     	<option value="file">File</option>
 		                                     </select>
 								           </div>

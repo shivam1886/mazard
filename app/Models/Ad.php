@@ -7,18 +7,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ad extends Model
 {
-     use SoftDeletes;
+      use SoftDeletes;
 
-     public function user(){
+      public function user(){
        return $this->hasOne('App\User','id','user_id');
-     }
+      }
 
-     public function category(){
+      public function adFields(){
+       return $this->hasMany('App\Models\AdField','ad_id','id');
+      }
+
+      public function category(){
        return $this->hasOne('App\Models\Category','id','category_id');
-     }
+      }
 
-     public function subCategory(){
+      public function subCategory(){
        return $this->hasOne('App\Models\Category','parent_id','category_id');
-     }
+      }
 
 }

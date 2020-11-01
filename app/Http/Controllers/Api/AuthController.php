@@ -16,6 +16,7 @@ use DB;
 use App\Mail\NotifyMail;
 use Mail;
 use App\Models\Ad;
+use App\Models\Field;
 
 class AuthController extends Controller
 {
@@ -44,7 +45,13 @@ class AuthController extends Controller
                $errors =  $validator->errors()->all();
                return response(['status' => false , 'message' => $errors[0]]);              
             }
-            return ['status'=>true , 'message' => __('Otp sent successfully')];
+
+            $user = User::where('phone',$input['mobile'])->first();
+            if($user){
+              return ['status'=>true , 'message' => __('Otp sent successfully')];
+            }else{
+              return ['status'=>true , 'message' => __('This mobile number does not exist')];
+            }
      }
 
      public function reSendOtp(Request $request){
@@ -57,7 +64,12 @@ class AuthController extends Controller
                $errors =  $validator->errors()->all();
                return response(['status' => false , 'message' => $errors[0]]);              
             }
-            return ['status'=>true , 'message' => __('Opt resent successfully')];
+            $user = User::where('phone',$input['mobile'])->first();
+            if($user){
+              return ['status'=>true , 'message' => __('Otp re-sent successfully')];
+            }else{
+              return ['status'=>true , 'message' => __('This mobile number does not exist')];
+            }
      }
 
      public function verifyOtp(Request $request){
@@ -72,8 +84,10 @@ class AuthController extends Controller
                $errors =  $validator->errors()->all();
                return response(['status' => false , 'message' => $errors[0]]);              
             }
-            if($input['mobile'] == '9999999999' && $input['otp'] == '1234'){
-              $user = User::find(2);
+            
+            $user = User::where('phone',$input['mobile'])->first();
+
+            if($user && $user->otp == $input['otp']){
               return ['status'=>true , 'message' => __('Successfully loggedin') , 'data' => $user ];
             }else{
               return ['status'=>false , 'message' => __('Failed to verify otp')];
@@ -257,6 +271,7 @@ class AuthController extends Controller
 
          $rules = [
                    'category_id'  => 'required',
+                   'user_id'      => 'required',
                   ];
 
          $validator = Validator::make($request->all(), $rules);
@@ -265,28 +280,110 @@ class AuthController extends Controller
            $errors =  $validator->errors()->all();
            return response(['status' => false , 'message' => $errors[0]] , 200);              
          }
-         
-        $data['fields'] = DB::table('fields')->where('category_id',$input['category_id'])->whereNull('deleted_at')->get();
-
-        if($data['fields']->toArray()){
-           foreach ($data['fields'] as $key => $value) {
-              $data['fields'][$key]->field_options = unserialize($value->field_options);
-           }
-        }
-      
+        $data['fields'] = Field::where('category_id',$input['category_id'])->whereNull('deleted_at')->get();
         return view('api.form',compact('data'));        
 
      }
 
      public function submitForm(Request $request){
-       $inputs = $request->all();
-       return $inputs;
-       $insertData = array();
+        
+        $inputs         = $request->all();
+        $insertAdData   = array();
+        $inserFieldData = array();
+
+        $rules = [
+                   'category_id'  => 'required',
+                   'user_id'      => 'required',
+                   'title'        => 'required',
+                   'description'  => 'required',
+                   'price'        => 'required',
+                  ];
+
+        $fields = Field::where('category_id',$inputs['category_id'])->get();
+
+        $fieldIds = array();
+
+        if($fields->toArray()){
+           foreach ($fields as $key => $value) {
+            $fieldIds[$value->input_name] = $value->id;
+            if($value->is_required)
+                $rules[$value->input_name] = 'required';
+           }
+        }
+
+        $request->validate($rules);
+       
+       $adId = DB::table('ads')->insertGetId(['user_id'=>$inputs['user_id'],'title'=>$inputs['title'],'description'=>$inputs['description'],'price'=>$inputs['price'],'category_id' => $inputs['category_id']]);
+       unset($inputs['user_id']);
+       unset($inputs['category_id']);
+       unset($inputs['title']);
+       unset($inputs['description']);
+       unset($inputs['price']);
        foreach ($inputs as $key => $value) {
-          array_push($insertData,['ad_id'=>'7','field_id'=>$key,'value'=>$value]);
+          array_push($inserFieldData,['ad_id'=>$adId,'field_id'=>$fieldIds[$key],'value'=>$value]);
        }
-       DB::table('ad_fields')->insert($insertData);
+       DB::table('ad_fields')->insert($inserFieldData);
+       return redirect('api/ad/create/response?status=success');
      }
 
+     public function adCreateResponse(Request $request){
+       return view('api.form_submit_response');
+     }
+
+     public function getAd(Request $request){
+       $inputs         = $request->all();
+
+        $rules = [
+                   'ad_id'  => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+
+       $data['ad']     = Ad::find($inputs['ad_id']);
+       $data['fields'] = Field::where('category_id',$data['ad']->category_id)->whereNull('deleted_at')->get();
+       return view('api.ad',compact('data'));
+     }
+      
+    public function getAds(Request $request){
+        $inputs         = $request->all();
+        $insertAdData   = array();
+        $inserFieldData = array();
+
+        $rules = [
+                   'user_id'      => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+
+       $ads = Ad::where(function($query) use ($request){
+           if($request->user_id){
+             $query->where('user_id',$request->user_id);
+           }
+           if($request->category_id){
+             $query->where('category_id',$request->category_id);
+           }
+           if($request->status){
+             $query->where('status',$request->status);
+           }
+       })->whereNull('deleted_at')->get();
+       
+       if($ads->toArray()){
+         $data = $ads;
+         return ['status'=>false,'message'=>'Record not found','data'=>$data];
+       }else{
+         return ['status'=>false,'message'=>'Record not found'];
+       } 
+
+    }
 
 }

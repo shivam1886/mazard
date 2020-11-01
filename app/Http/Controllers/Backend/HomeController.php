@@ -335,7 +335,7 @@ class HomeController extends Controller
          if($validator->fails()){
             return array('status' => 'error' , 'msg' => 'failed to add field', '' , 'errors' => $validator->errors());
          }
-         
+
          DB::beginTransaction();
          
          try {
@@ -346,7 +346,7 @@ class HomeController extends Controller
                      'default'       => $input['default'] ?? NULL,
                      'help'          => $input['default'] ?? NULL,
                      'is_required'   => $input['is_required'] ?? '0',
-                     'field_options' => isset($input['option']) ? serialize($input['option']) : serialize(array())
+                     'field_options' => isset($input['option']) ? serialize(explode(',',$input['option'])) : serialize(array())
                     ]);
                     DB::commit();
             return ['status'=>'success','message'=> 'Successfully added field'];
@@ -379,13 +379,13 @@ class HomeController extends Controller
                      'default'       => $input['default'] ?? NULL,
                      'help'          => $input['default'] ?? NULL,
                      'is_required'   => $input['is_required'] ?? '0',
-                     'field_options' => isset($input['option']) ? serialize($input['option']) : serialize(array())
+                     'field_options' => isset($input['option']) ? serialize(explode(',',$input['option'])) : serialize(array())
                     ]);
              DB::commit();
             return ['status'=>'success','message'=> 'Successfully updated field'];
          } catch (\Exception $e) {
             DB::rollback();
-           return ['status'=>'failed','message'=> 'Failed to update field'];
+           return ['status'=>'failed','message'=> $e->getMessage()];
          }
      }
 

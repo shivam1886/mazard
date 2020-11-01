@@ -94,6 +94,13 @@ Route::get('ajax/sub/category/{id}', 'AjaxController@subCategory')->name('ajax.s
 Route::get('ajax/city/area/{id}', 'AjaxController@cityArea')->name('ajax.city.area');
 Route::get('ajax/fields/{id}', 'AjaxController@fields')->name('ajax.fields');
 
+Route::get('/api/get/form','Api\AuthController@form');
+Route::get('/api/submit/form','Api\AuthController@submitForm');
+Route::get('/api/ad/create/response','Api\AuthController@adCreateResponse');
+Route::get('/api/submit/form','Api\AuthController@submitForm');
+Route::get('/api//submit/form/success','Api\AuthController@submitForm');
+Route::get('/api/get/ad','Api\AuthController@getAd');
+
 
 
 

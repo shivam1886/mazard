@@ -15,6 +15,8 @@
 	<link rel="stylesheet" type="text/css" href="{{asset('public/backend')}}/fonts/fontawesome/css/all.min.css">
 	<link rel="stylesheet" type="text/css" href="{{asset('public')}}/css/app.css">
 	<style type="text/css">
+
+	   /* #01385f */
 		body{
 			background: #000;
             color:#fff;		
@@ -26,45 +28,44 @@
 			text-align: left;
 			display: inline-block;
 		}
-         
-		.date{
-           text-align: right;
-           display: inline-block;
-		}
-
-		.title,.date{
-			color: #fff;
-		}
 
 		hr{
 			width: 100%;
 			border-top: 1px solid #fff;
 		}
 
-		table{
-			width: 100%;
+		.price-date{
+			display: flex;
+            justify-content: space-between;
 		}
+        
+        .price-date p{
+            font-weight: 500;
+        }
+
+        .wrapper .details{
+
+        }
+
 
 		</style>
 </head>
 <body>
 
   <div class="wrapper">
-  	 <table>
-  	 	<tr>
-  	 		<th colspan="2"><h1>{{$data['ad']->title}}</h1></th>
-  	 	</tr>
-  	 	<tr>
-  	 		<th><p class="price">$ {{$data['ad']->price}}</p></th>
-  	 		<th>{{date('d M Y',strtotime($data['ad']->created_at))}}</th>
-  	 	</tr>
-  	 	<tr>
-  	 		<td colspan="2">Description</td>
-  	 	</tr>
-  	 	<tr>
-  	 		<tr><th colspan="2">{{$data['ad']->description}}</th></tr>
-  	 	</tr>
-  	 </table>
+  	<h1>{{$data['ad']->title}}</h1>
+    <div class="price-date">
+    	<div class="price">
+    		<p>$ 200<</p>
+    	</div>
+    	<div class="date">
+    		<p>21 March 2020</p>
+    	</div>
+    </div>
+     <hr/>
+    <div class="description">
+    	<p>{{$data['ad']->description}}</p>
+    </div>
   </div>  
 
 </body>

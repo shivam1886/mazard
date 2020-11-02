@@ -14,6 +14,7 @@
 	<!--font awesome 4-->
 	<link rel="stylesheet" type="text/css" href="{{asset('public/backend')}}/fonts/fontawesome/css/all.min.css">
 	<link rel="stylesheet" type="text/css" href="{{asset('public')}}/css/app.css">
+	 <link rel="stylesheet" type="text/css" href="{{asset('public')}}/css/image-uploader.min.css">
 	<style type="text/css">
 		body{
 			background: #000;
@@ -57,7 +58,8 @@
 <body>
 
   <div class="wrapper">
-  	 <form class="form" action="{{url('api/submit/form')}}" method="get">
+  	 <form class="form" action="{{url('api/submit/form')}}" method="post" enctype="multipart/form-data">
+  	 	@csrf
   	 	<input type="hidden" name="user_id" value="{{Request::get('user_id')}}">
   	 	<input type="hidden" name="category_id" value="{{Request::get('category_id')}}">
 
@@ -148,7 +150,7 @@
 						    <div class="text-error">{{ $errors->first($field->input_name) }}</div>
 					@endif
 					</div>
-				@break;
+				@break
 				@case('select')
 					<div class="form-group">
 					<select name="{{$field->input_name}}" class="form-control">
@@ -163,6 +165,11 @@
 					@endif
 					</div>
 				@break
+				@case('file')
+					<div class="drop-choose-img">
+					     <div class="drag-upload-img"></div>
+					</div>
+				@break
 			@endswitch
 		@empty
 		@endforelse
@@ -175,9 +182,24 @@
 <script type="text/javascript" src="{{asset('public/backend')}}/js/jquery.min.js"></script>
 <script type="text/javascript" src="{{asset('public/backend')}}/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="{{asset('public/backend')}}/js/sweetalert.min.js"></script>
+ <script type="text/javascript" src="{{asset('public')}}/js/image-uploader.min.js"></script>
 <style type="text/css">
-	form{
+	 form{
 		padding: 10px;
-	}
+	 }
+	 .image-uploader .upload-text {
+        color:#fff;
+	  }
 </style>
+<script type="text/javascript">
+	 $('.drag-upload-img').imageUploader({
+		preloaded: '',
+		imagesInputName: 'image',
+		preloadedInputName: 'old',
+		maxSize: 6 * 1024 * 1024, // 6 MB
+		maxFiles: 6, // Max 6 file upload
+		extensions: ['.jpg', '.jpeg', '.png'],
+		mimes:['image/jpg','image/jpeg', 'image/png']
+	 });
+</script>
 </html>

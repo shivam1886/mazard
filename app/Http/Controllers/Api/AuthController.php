@@ -319,8 +319,27 @@ class AuthController extends Controller
        unset($inputs['title']);
        unset($inputs['description']);
        unset($inputs['price']);
+       
+       if(isset($inputs['_token'])){
+           unset($inputs['_token']);
+       }
+       
+         $imageData = array();
+         if($request->hasFile('image')){
+            foreach ($request->image as $key => $image) {
+                $imageName = str_random('10').'.'.time().'.'.$image->getClientOriginalExtension();
+                $image->move(public_path('images/ad/'), $imageName);
+                array_push($imageData,$imageName);
+            }
+         }
+
+       $imageData =  serialize($imageData);
+
        foreach ($inputs as $key => $value) {
-          array_push($inserFieldData,['ad_id'=>$adId,'field_id'=>$fieldIds[$key],'value'=>$value]);
+          if($key != 'image')
+              array_push($inserFieldData,['ad_id'=>$adId,'field_id'=>$fieldIds[$key],'value'=>$value]);
+          else
+            array_push($inserFieldData, ['ad_id'=>$adId,'field_id'=>$fieldIds[$key],'value'=>$imageData]);
        }
        DB::table('ad_fields')->insert($inserFieldData);
        return redirect('api/ad/create/response?status=success');

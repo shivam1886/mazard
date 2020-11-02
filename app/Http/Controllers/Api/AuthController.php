@@ -17,6 +17,7 @@ use App\Mail\NotifyMail;
 use Mail;
 use App\Models\Ad;
 use App\Models\Field;
+use App\Models\AdBid;
 
 class AuthController extends Controller
 {
@@ -375,15 +376,100 @@ class AuthController extends Controller
            if($request->status){
              $query->where('status',$request->status);
            }
-       })->whereNull('deleted_at')->get();
+       })->whereNull('deleted_at')->where('is_active','1')->get();
        
        if($ads->toArray()){
          $data = $ads;
-         return ['status'=>false,'message'=>'Record not found','data'=>$data];
+         foreach ($data as $key => $value) {
+            DB::table('ad_bids')->where('ad_id','')->count();
+         }
+         return ['status'=>true,'message'=>'Record not found','data'=>$data];
        }else{
          return ['status'=>false,'message'=>'Record not found'];
        } 
 
     }
 
+    public function makeBid(Request $request){
+        $inputs         = $request->all();
+        $rules = [
+                   'user_id'      => 'required',
+                   'ad_id'        => 'required',
+                   'bid'          => 'required', 
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+    
+       $id = DB::table('ad_bids')->insertGetId($inputs);
+
+       if($id){
+          return ['status'=>true,'message'=>'Success'];
+       }else{
+         return ['status'=>false,'message'=>'Failed'];
+       } 
+
+    }
+
+    public function getBid(Request $request){
+        $inputs         = $request->all();
+        $rules = [
+                   'ad_id'        => 'required',
+                   'user_id'      => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+
+       $ads = AdBid::where('ad_id',$inputs['ad_id'])->whereNull('deleted_at')->get();
+       $data = array();
+       if($ads->toArray()){
+         foreach($ads as $key => $value){
+              $temp = [];
+              $temp['user_id']   = $value->user_id;
+              $temp['ad_id']     = $value->ad_id;
+              $temp['name']      = $value->user->name;
+              $temp['bid']       = $value->bid;
+              array_push($data,$temp);
+         }
+       }
+       if($ads){
+          return ['status'=>true,'message'=>'Bid found' , 'data' => $data];
+       }else{
+         return ['status'=>false,'message'=>'Not found'];
+       }
+    }
+
+    public function acceptBid(Request $request){
+        $inputs         = $request->all();
+        $rules = [
+                   'ad_id'         => 'required',
+                   'bid_id'        => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+         DB::beginTransaction();
+        try {
+          DB::table('ad_bids')->where(['id'=>$inputs['bid_id']])->update(['bid_status'=>'1']);
+          DB::table('ads')->where('id',$inputs['ad_id'])->update(['is_active'=>'2']);
+          DB::commit();       
+          return ['status'=>true,'message'=>'Success'];      
+        } catch ( \Exception $e) {
+          DB::rollback();
+          return ['status'=>false,'message'=>$e->getMessage()];
+        }
+   }
 }

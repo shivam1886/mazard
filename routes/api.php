@@ -34,8 +34,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
     Route::get('/get/categories','Api\AuthController@getCategories');
     Route::get('/get/ads','Api\AuthController@getAds');
+    Route::post('/make/bid','Api\AuthController@makeBid');
+    Route::get('/get/bid','Api\AuthController@getBid');
+    Route::post('/accept/bid','Api\AuthController@acceptBid');
 
 
+    
       
 
 

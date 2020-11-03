@@ -371,8 +371,6 @@ class AuthController extends Controller
       
     public function getAds(Request $request){
         $inputs         = $request->all();
-        $insertAdData   = array();
-        $inserFieldData = array();
 
         $rules = [
                    'user_id'      => 'required',
@@ -490,5 +488,105 @@ class AuthController extends Controller
           DB::rollback();
           return ['status'=>false,'message'=>$e->getMessage()];
         }
+   }
+
+   public function rejectBid(Request $request){
+       $inputs         = $request->all();
+        $rules = [
+                   'ad_id'         => 'required',
+                   'bid_id'        => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+         DB::beginTransaction();
+        try {
+          DB::table('ad_bids')->where(['id'=>$inputs['bid_id']])->update(['bid_status'=>'2']);
+          DB::commit();       
+          return ['status'=>true,'message'=>'Success'];      
+        } catch ( \Exception $e) {
+          DB::rollback();
+          return ['status'=>false,'message'=>$e->getMessage()];
+        }
+   }
+
+   public function myBids(Request $request){
+        $inputs         = $request->all();
+        $rules = [
+                   'user_id'      => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+
+       $ads = AdBid::where('ad_id',$inputs['user_id'])->whereNull('deleted_at')->get();
+       $data = array();
+       if($ads->toArray()){
+         foreach($ads as $key => $value){
+              $temp = [];
+              $temp['bid_id']    = $value->id;
+              $temp['ad_id']     = $value->ad_id;
+              $temp['title']     = $value->ad->title;
+              $temp['bid']       = $value->bid;
+              $temp['time']      = date('Y M d h:i A',strtotime($value->created_at));
+              $temp['total_bid'] = DB::table('ad_bids')->where('ad_id',$value->bid_id)->where('user_id','!=',$inputs['user_id'])->count();
+              array_push($data,$temp);
+         }
+       }
+       if($ads){
+          return ['status'=>true,'message'=>'Bid found' , 'data' => $data];
+       }else{
+         return ['status'=>false,'message'=>'Not found'];
+       }
+   }
+
+   public function doFavourite(Request $request){
+      
+   }
+
+   public function getFavouriteAds(Request $request){
+       
+        $inputs         = $request->all();
+
+        $rules = [
+                   'user_id'      => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+
+       $ads = Ad::join('favourites','ads.id','')->where(function($query) use ($request){
+           if($request->user_id){
+             $query->where('user_id',$request->user_id);
+           }
+           if($request->category_id){
+             $query->where('category_id',$request->category_id);
+           }
+           if($request->status){
+             $query->where('status',$request->status);
+           }
+       })->whereNull('deleted_at')->where('is_active','1')->get();
+       
+       if($ads->toArray()){
+         $data = $ads;
+         foreach ($data as $key => $value) {
+            DB::table('ad_bids')->where('ad_id','')->count();
+         }
+         return ['status'=>true,'message'=>'Record not found','data'=>$data];
+       }else{
+         return ['status'=>false,'message'=>'Record not found'];
+       } 
    }
 }

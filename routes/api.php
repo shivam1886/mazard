@@ -38,6 +38,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::get('/get/bid','Api\AuthController@getBid');
     Route::post('/accept/bid','Api\AuthController@acceptBid');
 
+    Route::post('/reject/bid','Api\AuthController@rejectBid');
+
+    Route::post('/my/bids','Api\AuthController@myBids');
+
 
     
       

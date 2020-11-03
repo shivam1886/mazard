@@ -38,6 +38,14 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::get('/get/bid','Api\AuthController@getBid');
     Route::post('/accept/bid','Api\AuthController@acceptBid');
 
+    Route::post('/get/favourites','Api\AuthController@getFavourite');
+
+
+    Route::get('/get/ad/image','Api\AuthController@getAdImage');
+    Route::get('/get/ad/images','Api\AuthController@getAdImages');
+
+    Route::post('do/favourite','Api\AuthController@doFavourite');
+
     Route::post('/reject/bid','Api\AuthController@rejectBid');
 
     Route::post('/my/bids','Api\AuthController@myBids');

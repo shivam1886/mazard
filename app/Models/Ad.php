@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DB;
 
 class Ad extends Model
 {
@@ -15,6 +16,22 @@ class Ad extends Model
 
       public function adFields(){
        return $this->hasMany('App\Models\AdField','ad_id','id');
+      }
+
+      public function getImageAttribute(){
+            $imageData = DB::table('ad_images')->where('ad_id',$this->id)->first();
+            return asset('pulic/images/ad/'.$imageData->image);
+      }
+
+      public function getImagesAttribute(){
+            $imageData = DB::table('ad_images')->where('ad_id',$this->id)->get();
+            $images    = array();
+            if($imageData->toArray()){
+                  foreach($imageData as $image){
+                     array_push($images,asset('pulic/images/ad/'.$image));
+                  }
+            }
+            return $images;
       }
 
       public function category(){

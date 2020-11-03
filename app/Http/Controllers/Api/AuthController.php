@@ -330,18 +330,15 @@ class AuthController extends Controller
             foreach ($request->image as $key => $image) {
                 $imageName = str_random('10').'.'.time().'.'.$image->getClientOriginalExtension();
                 $image->move(public_path('images/ad/'), $imageName);
-                array_push($imageData,$imageName);
+                array_push($imageData,['ad_id'=>$adId,'name'=>$imageName]);
             }
          }
-
-       $imageData =  serialize($imageData);
 
        foreach ($inputs as $key => $value) {
           if($key != 'image')
               array_push($inserFieldData,['ad_id'=>$adId,'field_id'=>$fieldIds[$key],'value'=>$value]);
-          else
-            array_push($inserFieldData, ['ad_id'=>$adId,'field_id'=>$fieldIds[$key],'value'=>$imageData]);
        }
+       DB::table('ad_images')->insert($imageData);
        DB::table('ad_fields')->insert($inserFieldData);
        return redirect('api/ad/create/response?status=success');
      }
@@ -383,22 +380,37 @@ class AuthController extends Controller
            return response(['status' => false , 'message' => $errors[0]] , 200);              
        }
 
-       $ads = Ad::where(function($query) use ($request){
-           if($request->user_id){
-             $query->where('user_id',$request->user_id);
-           }
-           if($request->category_id){
-             $query->where('category_id',$request->category_id);
-           }
-           if($request->status){
-             $query->where('status',$request->status);
-           }
-       })->whereNull('deleted_at')->where('is_active','1')->get();
-       
+       $ads = Ad::join('ads','favouriate_ads.ad_id','=','ads.id')
+                ->join('users','favouriate_ads.user_id','=','users.id')
+                 ->where(function($query) use ($request){
+                     if($request->user_id){
+                       $query->where('ads.user_id',$request->user_id);
+                     }
+                     if($request->category_id){
+                       $query->where('ads.category_id',$request->category_id);
+                     }
+                     if($request->status){
+                       $query->where('ads.status',$request->status);
+                     }
+                 }) 
+                ->where('ads.is_active','1')
+                ->where('ads.is_publish','1')
+                ->where('users.is_active')
+                ->whereNull('ads.deleted_at')
+                ->whereNull('users.deleted_at')
+                ->get();
+       $data = array();
        if($ads->toArray()){
-         $data = $ads;
-         foreach ($data as $key => $value) {
-            DB::table('ad_bids')->where('ad_id','')->count();
+         foreach ($ads as $key => $value) {
+            $temp = array();
+            $temp['ad_id']   = $value->id; 
+            $temp['title']  = $value->description;
+            $temp['price']  = $value->price;
+            $temp['time']   = date('Y-m-d h:i A',strtotime($value->created_at));
+            $temp['city']   = 'Indore';
+            $temp['total_bids'] = DB::table('ad_bids')->where('ad_id',$value->id)->count();
+            $temp['image']  = $value->image;
+            array_push($data, $temp);
          }
          return ['status'=>true,'message'=>'Record not found','data'=>$data];
        }else{
@@ -550,6 +562,79 @@ class AuthController extends Controller
 
    public function doFavourite(Request $request){
       
+        $inputs         = $request->all();
+
+        $rules = [
+                   'user_id'      => 'required',
+                   'ad_id'        => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }     
+      
+       $isFavourite = DB::table('favouriate_ads')->where(['user_id'=>$inputs['user_id'],'ad_id'=>$inputs['ad_id']])->first();
+
+       if($isFavourite){
+        if(DB::table('favouriate_ads')->where(['user_id'=>$inputs['user_id'],'ad_id'=>$inputs['ad_id']])->delete()){
+           retrurn ['status'=>ture,'message'=>__('success')];
+         }else{
+           retrurn ['status'=>false,'message'=>__('failed')];
+         }
+       }else{
+         if(DB::table('favouriate_ads')->insertGetId(['user_id'=>$inputs['user_id'],'ad_id'=>$inputs['ad_id']])){
+           retrurn ['status'=>ture,'message'=>__('success')];
+         }else{
+           retrurn ['status'=>false,'message'=>__('failed')];
+         }
+       }
+   }
+
+   public function getFavourite(){
+
+        $inputs         = $request->all();
+
+        $rules = [
+                   'user_id'      => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }       
+
+      $ads = DB::table('favouriate_ads')
+                ->join('ads','favouriate_ads.ad_id','=','ads.id')
+                ->join('users','favouriate_ads.user_id','=','users.id')
+                ->where('ads.is_active','1')
+                ->where('ads.is_publish','1')
+                ->where('users.is_active')
+                ->whereNull('ads.deleted_at')
+                ->whereNull('users.deleted_at')
+                ->where('ads.user_id',$inputs['user_id'])
+                ->get();
+      $data = array();
+       if($ads->toArray()){
+         foreach ($ads as $key => $value) {
+            $temp = array();
+            $temp['ad_id']   = $value->id; 
+            $temp['title']  = $value->description;
+            $temp['price']  = $value->price;
+            $temp['time']   = date('Y-m-d h:i A',strtotime($value->created_at));
+            $temp['city']   = 'Indore';
+            $temp['total_bids'] = DB::table('ad_bids')->where('ad_id',$value->id)->count();
+            $temp['image']  = $value->image;
+            array_push($data, $temp);
+         }
+         return ['status'=>true,'message'=>'Record not found','data'=>$data];
+       }else{
+         return ['status'=>false,'message'=>'Record not found'];
+       }
    }
 
    public function getFavouriteAds(Request $request){
@@ -588,5 +673,47 @@ class AuthController extends Controller
        }else{
          return ['status'=>false,'message'=>'Record not found'];
        } 
+   }
+
+   public function getAdImage(Request $request){
+       $inputs         = $request->all();
+
+        $rules = [
+                   'ad_id'      => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+
+       $ad = Ad::find($input['ad_id']);
+       if($ad){
+         return ['status'=>true,'message'=>'Record found','data'=>$ad->image]; 
+       }
+         return ['status'=>false,'message'=>'Record not found'];
+   }
+
+   public function getAdImages(Request $request){
+       $inputs         = $request->all();
+
+        $rules = [
+                   'ad_id'      => 'required',
+                  ];
+
+         $validator = Validator::make($request->all(), $rules);
+
+       if ($validator->fails()) {
+           $errors =  $validator->errors()->all();
+           return response(['status' => false , 'message' => $errors[0]] , 200);              
+       }
+
+       $ad = Ad::find($input['ad_id']);
+       if($ad){
+         return ['status'=>true,'message'=>'Record found','data'=>$ad->images]; 
+       }
+         return ['status'=>false,'message'=>'Record not found'];
    }
 }

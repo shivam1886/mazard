@@ -20,7 +20,10 @@ class Ad extends Model
 
       public function getImageAttribute(){
             $imageData = DB::table('ad_images')->where('ad_id',$this->id)->first();
-            return asset('pulic/images/ad/'.$imageData->image);
+            if($imageData)
+                return url('pulic/images/ad/'.$imageData->name);
+            else
+                return url('public/backend/images/image-no-found.jpg');
       }
 
       public function getImagesAttribute(){
@@ -28,7 +31,7 @@ class Ad extends Model
             $images    = array();
             if($imageData->toArray()){
                   foreach($imageData as $image){
-                     array_push($images,asset('pulic/images/ad/'.$image));
+                     array_push($images,asset('pulic/images/ad/'.$name));
                   }
             }
             return $images;

@@ -380,22 +380,20 @@ class AuthController extends Controller
            return response(['status' => false , 'message' => $errors[0]] , 200);              
        }
 
-       $ads = Ad::join('ads','favouriate_ads.ad_id','=','ads.id')
-                ->join('users','favouriate_ads.user_id','=','users.id')
-                 ->where(function($query) use ($request){
-                     if($request->user_id){
-                       $query->where('ads.user_id',$request->user_id);
-                     }
-                     if($request->category_id){
+       $ads = Ad::select('ads.*')->join('users','ads.user_id','=','users.id')
+                  ->where(function($query) use ($request){
+                    if($request){
+                     if(isset($request->status) && $request->category_id){
                        $query->where('ads.category_id',$request->category_id);
                      }
-                     if($request->status){
+                     if(isset($request->status) && $request->status){
                        $query->where('ads.status',$request->status);
                      }
+                    }
                  }) 
                 ->where('ads.is_active','1')
                 ->where('ads.is_publish','1')
-                ->where('users.is_active')
+                ->where('users.is_active','1')
                 ->whereNull('ads.deleted_at')
                 ->whereNull('users.deleted_at')
                 ->get();
@@ -480,8 +478,8 @@ class AuthController extends Controller
     public function acceptBid(Request $request){
         $inputs         = $request->all();
         $rules = [
+                   'user_id'       => 'required',
                    'ad_id'         => 'required',
-                   'bid_id'        => 'required',
                   ];
 
          $validator = Validator::make($request->all(), $rules);
@@ -492,7 +490,7 @@ class AuthController extends Controller
        }
          DB::beginTransaction();
         try {
-          DB::table('ad_bids')->where(['id'=>$inputs['bid_id']])->update(['bid_status'=>'1']);
+          DB::table('ad_bids')->where('user_id',$inputs['user_id'])->where('ad_id',$inputs['ad_id'])->update(['bid_status'=>'1']);
           DB::table('ads')->where('id',$inputs['ad_id'])->update(['is_active'=>'2']);
           DB::commit();       
           return ['status' => true,'message'=>'Success'];      
@@ -505,8 +503,8 @@ class AuthController extends Controller
    public function rejectBid(Request $request){
        $inputs         = $request->all();
         $rules = [
-                   'ad_id'         => 'required',
-                   'bid_id'        => 'required',
+                   'ad_id'       => 'required',
+                   'user_id'     => 'required',
                   ];
 
          $validator = Validator::make($request->all(), $rules);
@@ -517,7 +515,7 @@ class AuthController extends Controller
        }
          DB::beginTransaction();
         try {
-          DB::table('ad_bids')->where(['id'=>$inputs['bid_id']])->update(['bid_status'=>'2']);
+          DB::table('ad_bids')->where('ad_id',$inputs['ad_id'])->where('user_id',$inputs['user_id'])->update(['bid_status'=>'2']);
           DB::commit();       
           return ['status' => true,'message'=>'Success'];      
         } catch ( \Exception $e) {
@@ -539,7 +537,8 @@ class AuthController extends Controller
            return response(['status' => false , 'message' => $errors[0]] , 200);              
        }
 
-       $ads = AdBid::where('ad_id',$inputs['user_id'])->whereNull('deleted_at')->get();
+       $ads = AdBid::where('user_id',$inputs['user_id'])->whereNull('deleted_at')->get();
+
        $data = array();
        if($ads->toArray()){
          foreach($ads as $key => $value){
@@ -588,7 +587,7 @@ class AuthController extends Controller
          if(DB::table('favouriate_ads')->insertGetId(['user_id'=>$inputs['user_id'],'ad_id'=>$inputs['ad_id']])){
            return ['status' => true,'message'=> __('success')];
          }else{
-           return ['status' => false  ,'message'=> __('failed')];
+           return ['status'=>true,'message'=>__('failed')];
          }
        }
    }
@@ -652,22 +651,38 @@ class AuthController extends Controller
            return response(['status' => false , 'message' => $errors[0]] , 200);              
        }
 
-       $ads = Ad::join('favourites','ads.id','')->where(function($query) use ($request){
-           if($request->user_id){
-             $query->where('user_id',$request->user_id);
-           }
-           if($request->category_id){
-             $query->where('category_id',$request->category_id);
-           }
-           if($request->status){
-             $query->where('status',$request->status);
-           }
-       })->whereNull('deleted_at')->where('is_active','1')->get();
+        $ads = Ad::select('ads.*')
+                  ->join('favouriate_ads','ads.id','=','favouriate_ads.ad_id')
+                  ->join('users','ads.user_id','=','users.id')
+                  ->where(function($query) use ($request){
+                    if($request){
+                     if(isset($request->status) && $request->category_id){
+                       $query->where('ads.category_id',$request->category_id);
+                     }
+                     if(isset($request->status) && $request->status){
+                       $query->where('ads.status',$request->status);
+                     }
+                    }
+                 }) 
+                ->where('ads.is_active','1')
+                ->where('ads.is_publish','1')
+                ->where('users.is_active','1')
+                ->whereNull('ads.deleted_at')
+                ->whereNull('users.deleted_at')
+                ->get();
        
+         $data = array();
        if($ads->toArray()){
-         $data = $ads;
-         foreach ($data as $key => $value) {
-            DB::table('ad_bids')->where('ad_id','')->count();
+         foreach ($ads as $key => $value) {
+            $temp = array();
+            $temp['ad_id']   = $value->id; 
+            $temp['title']  = $value->description;
+            $temp['price']  = $value->price;
+            $temp['time']   = date('Y-m-d h:i A',strtotime($value->created_at));
+            $temp['city']   = 'Indore';
+            $temp['total_bids'] = DB::table('ad_bids')->where('ad_id',$value->id)->count();
+            $temp['image']  = $value->image;
+            array_push($data, $temp);
          }
          return ['status' => true,'message'=>'Record not found','data'=>$data];
        }else{
@@ -689,7 +704,7 @@ class AuthController extends Controller
            return response(['status' => false , 'message' => $errors[0]] , 200);              
        }
 
-       $ad = Ad::find($input['ad_id']);
+       $ad = Ad::find($inputs['ad_id']);
        if($ad){
          return ['status' => true,'message'=>'Record found','data'=>$ad->image]; 
        }
@@ -710,7 +725,7 @@ class AuthController extends Controller
            return response(['status' => false , 'message' => $errors[0]] , 200);              
        }
 
-       $ad = Ad::find($input['ad_id']);
+       $ad = Ad::find($inputs['ad_id']);
        if($ad){
          return ['status' => true,'message'=>'Record found','data'=>$ad->images]; 
        }

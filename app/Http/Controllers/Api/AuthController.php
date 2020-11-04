@@ -49,9 +49,9 @@ class AuthController extends Controller
 
             $user = User::where('phone',$input['mobile'])->first();
             if($user){
-              return ['status'=>true , 'message' => __('Otp sent successfully')];
+              return ['status' => true , 'message' => __('Otp sent successfully')];
             }else{
-              return ['status'=>true , 'message' => __('This mobile number does not exist')];
+              return ['status' => true , 'message' => __('This mobile number does not exist')];
             }
      }
 
@@ -67,9 +67,9 @@ class AuthController extends Controller
             }
             $user = User::where('phone',$input['mobile'])->first();
             if($user){
-              return ['status'=>true , 'message' => __('Otp re-sent successfully')];
+              return ['status' => true , 'message' => __('Otp re-sent successfully')];
             }else{
-              return ['status'=>true , 'message' => __('This mobile number does not exist')];
+              return ['status' => true , 'message' => __('This mobile number does not exist')];
             }
      }
 
@@ -89,9 +89,9 @@ class AuthController extends Controller
             $user = User::where('phone',$input['mobile'])->first();
 
             if($user && $user->otp == $input['otp']){
-              return ['status'=>true , 'message' => __('Successfully loggedin') , 'data' => $user ];
+              return ['status' => true , 'message' => __('Successfully loggedin') , 'data' => $user ];
             }else{
-              return ['status'=>false , 'message' => __('Failed to verify otp')];
+              return ['status' => false   , 'message' => __('Failed to verify otp')];
             }
      }
 
@@ -107,9 +107,9 @@ class AuthController extends Controller
             }
             $user = User::find($input['user_id']);
             if($user){
-              return ['status'=>true , 'message' => __('Record found') , 'data' => $user ];
+              return ['status' => true , 'message' => __('Record found') , 'data' => $user ];
             }else{
-              return ['status'=>false , 'message' => __('Something went wrong')];
+              return ['status' => false   , 'message' => __('Something went wrong')];
             }
      }
 
@@ -152,10 +152,10 @@ class AuthController extends Controller
             }
 
             if($User->update()){
-              return ['status'=>true,'message'=>__('Updated successfully')];
+              return ['status' => true,'message'=> __('Updated successfully')];
             }
             else{
-              return ['status'=>true,'message'=>__('Failed to update')];
+              return ['status' => true,'message'=> __('Failed to update')];
             }
 
      }
@@ -189,7 +189,7 @@ class AuthController extends Controller
             $User->phone        = $input['phone'];
             $User->name         = $input['user_name'];
             $User->device_token = $input['device_token'] ?? NULL;
-            $User->password     = Hash::make($input['password']);
+        //    $User->password     = Hash::make($input['password']);
             $User->role_id      = '2';
             if($fileName){
                $User->profile_image = $fileName;
@@ -264,7 +264,7 @@ class AuthController extends Controller
 
      public function getCategories(){
        $categories = Category::whereNull('parent_id')->whereNull('deleted_at')->get();
-       return ['status'=>true,'message'=>__('Recoud found'),'data'=>$categories];
+       return ['status' => true,'message'=> __('Recoud found'),'data'=>$categories];
      }
      
      public function form(Request $request){
@@ -412,9 +412,9 @@ class AuthController extends Controller
             $temp['image']  = $value->image;
             array_push($data, $temp);
          }
-         return ['status'=>true,'message'=>'Record not found','data'=>$data];
+         return ['status' => true,'message'=>'Record not found','data'=>$data];
        }else{
-         return ['status'=>false,'message'=>'Record not found'];
+         return ['status' => false  ,'message'=>'Record not found'];
        } 
 
     }
@@ -437,9 +437,9 @@ class AuthController extends Controller
        $id = DB::table('ad_bids')->insertGetId($inputs);
 
        if($id){
-          return ['status'=>true,'message'=>'Success'];
+          return ['status' => true,'message'=>'Success'];
        }else{
-         return ['status'=>false,'message'=>'Failed'];
+         return ['status' => false  ,'message'=>'Failed'];
        } 
 
     }
@@ -471,9 +471,9 @@ class AuthController extends Controller
          }
        }
        if($ads){
-          return ['status'=>true,'message'=>'Bid found' , 'data' => $data];
+          return ['status' => true,'message'=>'Bid found' , 'data' => $data];
        }else{
-         return ['status'=>false,'message'=>'Not found'];
+         return ['status' => false  ,'message'=>'Not found'];
        }
     }
 
@@ -495,10 +495,10 @@ class AuthController extends Controller
           DB::table('ad_bids')->where(['id'=>$inputs['bid_id']])->update(['bid_status'=>'1']);
           DB::table('ads')->where('id',$inputs['ad_id'])->update(['is_active'=>'2']);
           DB::commit();       
-          return ['status'=>true,'message'=>'Success'];      
+          return ['status' => true,'message'=>'Success'];      
         } catch ( \Exception $e) {
           DB::rollback();
-          return ['status'=>false,'message'=>$e->getMessage()];
+          return ['status' => false  ,'message'=>$e->getMessage()];
         }
    }
 
@@ -519,10 +519,10 @@ class AuthController extends Controller
         try {
           DB::table('ad_bids')->where(['id'=>$inputs['bid_id']])->update(['bid_status'=>'2']);
           DB::commit();       
-          return ['status'=>true,'message'=>'Success'];      
+          return ['status' => true,'message'=>'Success'];      
         } catch ( \Exception $e) {
           DB::rollback();
-          return ['status'=>false,'message'=>$e->getMessage()];
+          return ['status' => false  ,'message'=>$e->getMessage()];
         }
    }
 
@@ -554,9 +554,9 @@ class AuthController extends Controller
          }
        }
        if($ads){
-          return ['status'=>true,'message'=>'Bid found' , 'data' => $data];
+          return ['status' => true,'message'=>'Bid found' , 'data' => $data];
        }else{
-         return ['status'=>false,'message'=>'Not found'];
+         return ['status' => false  ,'message'=>'Not found'];
        }
    }
 
@@ -580,15 +580,15 @@ class AuthController extends Controller
 
        if($isFavourite){
         if(DB::table('favouriate_ads')->where(['user_id'=>$inputs['user_id'],'ad_id'=>$inputs['ad_id']])->delete()){
-           retrurn ['status'=>ture,'message'=>__('success')];
+           return ['status' => true,'message'=> __('success')];
          }else{
-           retrurn ['status'=>false,'message'=>__('failed')];
+           return ['status' => false  ,'message'=> __('failed')];
          }
        }else{
          if(DB::table('favouriate_ads')->insertGetId(['user_id'=>$inputs['user_id'],'ad_id'=>$inputs['ad_id']])){
-           retrurn ['status'=>ture,'message'=>__('success')];
+           return ['status' => true,'message'=> __('success')];
          }else{
-           retrurn ['status'=>false,'message'=>__('failed')];
+           return ['status' => false  ,'message'=> __('failed')];
          }
        }
    }
@@ -631,9 +631,9 @@ class AuthController extends Controller
             $temp['image']  = $value->image;
             array_push($data, $temp);
          }
-         return ['status'=>true,'message'=>'Record not found','data'=>$data];
+         return ['status' => true,'message'=>'Record not found','data'=>$data];
        }else{
-         return ['status'=>false,'message'=>'Record not found'];
+         return ['status' => false  ,'message'=>'Record not found'];
        }
    }
 
@@ -669,9 +669,9 @@ class AuthController extends Controller
          foreach ($data as $key => $value) {
             DB::table('ad_bids')->where('ad_id','')->count();
          }
-         return ['status'=>true,'message'=>'Record not found','data'=>$data];
+         return ['status' => true,'message'=>'Record not found','data'=>$data];
        }else{
-         return ['status'=>false,'message'=>'Record not found'];
+         return ['status' => false  ,'message'=>'Record not found'];
        } 
    }
 
@@ -691,9 +691,9 @@ class AuthController extends Controller
 
        $ad = Ad::find($input['ad_id']);
        if($ad){
-         return ['status'=>true,'message'=>'Record found','data'=>$ad->image]; 
+         return ['status' => true,'message'=>'Record found','data'=>$ad->image]; 
        }
-         return ['status'=>false,'message'=>'Record not found'];
+         return ['status' => false  ,'message'=>'Record not found'];
    }
 
    public function getAdImages(Request $request){
@@ -712,8 +712,8 @@ class AuthController extends Controller
 
        $ad = Ad::find($input['ad_id']);
        if($ad){
-         return ['status'=>true,'message'=>'Record found','data'=>$ad->images]; 
+         return ['status' => true,'message'=>'Record found','data'=>$ad->images]; 
        }
-         return ['status'=>false,'message'=>'Record not found'];
+         return ['status' => false  ,'message'=>'Record not found'];
    }
 }

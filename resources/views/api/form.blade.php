@@ -165,14 +165,18 @@
 					@endif
 					</div>
 				@break
-				@case('file')
-					<div class="drop-choose-img">
-					     <div class="drag-upload-img"></div>
-					</div>
-				@break
 			@endswitch
 		@empty
 		@endforelse
+						<div class="form-group">
+				  	 		<input type="title" name="city" placeholder="{{__('City')}}" value="{{old('city')}}" class="form-control" autocomplete="off">
+				  	 		@if($errors->has('city')) 
+							    <div class="text-error">{{ $errors->first('city') }}</div>
+							@endif
+				  	 	</div>
+						<div class="drop-choose-img">
+						     <div class="drag-upload-img"></div>
+						</div>
 		<input type="submit" value="Add">
   	 </form>
   </div>  

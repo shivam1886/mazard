@@ -133,10 +133,11 @@ class AuthController extends Controller
            return response(['status' => false , 'message' => $errors[0]]);              
          }
 
-           $fileName = array();
-           if(isset($input['profile_image']) && !empty($input['profile_image'])){
-             $fileName = ImageHelper::upload(ImageHelper::$userImage,$input['profile_image']);
-           }
+            $fileName = null;
+              if ($request->hasFile('profile_image')) {
+                $fileName = str_random('10').'.'.time().'.'.request()->profile_image->getClientOriginalExtension();
+                request()->profile_image->move(public_path('images/profile/'), $fileName);
+              }
 
             $User = User::find($id);
             
@@ -298,6 +299,7 @@ class AuthController extends Controller
                    'title'        => 'required',
                    'description'  => 'required',
                    'price'        => 'required',
+                   'city'         => 'required',
                   ];
 
         $fields = Field::where('category_id',$inputs['category_id'])->get();
@@ -393,7 +395,7 @@ class AuthController extends Controller
        $ads = Ad::select('ads.*')->join('users','ads.user_id','=','users.id')
                   ->where(function($query) use ($request){
                     if($request){
-                     if(isset($request->status) && $request->category_id){
+                     if(isset($request->category_id) && $request->category_id){
                        $query->where('ads.category_id',$request->category_id);
                      }
                      if(isset($request->status) && $request->status){

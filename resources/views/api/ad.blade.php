@@ -21,49 +21,89 @@
 			background: #000;
             color:#fff;		
 		}
-
-		.price{
-			color: #01385f;
-			font-weight: bold;
-			text-align: left;
-			display: inline-block;
+		.wrapper {
+		    padding: 15px;
+		}
+		.wrapper .bb{
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid #212121;
+		}
+		.wrapper .title-price{
+			position: relative;
+		}
+		.wrapper .title-price h1 {
+		    color: #fff;
+		    font-size: 18px;
+		    margin: 0 0 5px;
+		    font-weight: 600;
+		    padding-right: 75px;
+		}
+		.wrapper .title-price h2{
+			color: #fff;
+		    font-size: 18px;
+		    margin: 0;
+		    font-weight: 600;
+		}
+		.wrapper .title-price span{
+			font-size: 12px;
+		    font-weight: 400;
+		    color: #c1c1c1;
+		    position: absolute;
+		    right: 0;
+		    top: 0;
+		    z-index: 1;
+		}
+		.wrapper .description p{
+			font-size: 13px;
+		    color: #c1c1c1;
+		    line-height: 18px;
+		    margin: 0;
 		}
 
-		hr{
-			width: 100%;
-			border-top: 1px solid #fff;
+		.wrapper .same-title{
+			color: #fff;
+		    font-size: 15px;
+		    margin: 0 0 5px;
 		}
-
-		.price-date{
-			display: flex;
-            justify-content: space-between;
+		.wrapper .details p{
+			font-size: 13px;
+		    color: #c1c1c1;
+		    line-height: 18px;
+		    margin: 0;
+		    width: 50%;
+		    display: inline-block;
+		    padding: 3px 0;
+		    float: left;
 		}
-        
-        .price-date p{
-            font-weight: 500;
-        }
-
-        .wrapper .details{
-
-        }
-
+		.wrapper .details p span{
+			color: #2196F3;
+			margin-left: 2px;
+		}
 
 		</style>
 </head>
 <body>
 
   <div class="wrapper">
-  	<h1>{{$data['ad']->title}}</h1>
-    <div class="price-date">
-    	<div class="price">
-    		<p>$ 200<</p>
-    	</div>
-    	<div class="date">
-    		<p>21 March 2020</p>
-    	</div>
-    </div>
-     <hr/>
-    <div class="description">
+  	<div class="title-price bb">
+  		<h1>{{$data['ad']->title}}</h1>
+  		<h2>$200 <span>20/08/2020</span> </h2>
+  	</div>
+
+  	<div class="details bb">
+  		<h2 class="same-title">Details</h2>
+
+  		<div class="inner-details clearfix">
+  			<p>Year: <span>2020</span></p>
+  			<p>Mileage: <span>70</span></p>
+  			<p>Condition: <span>New</span></p>
+  			<p>Color: <span>White</span></p>
+  		</div>
+  	</div>
+
+    <div class="description bb">
+    	<h2 class="same-title">Description</h2>
     	<p>{{$data['ad']->description}}</p>
     </div>
   </div>  
